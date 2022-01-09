@@ -45,9 +45,9 @@ public class IVRCdrReportHandler {
 		
 		
 		// Replace Table Index & bparty 
-		String insertQuery = ChatUtils.getTonePlayerCDRQuery(env.getProperty("SQL43_INSERT_IVR_CDR"),aparty,bparty,reason,duration,lastNode,callStartTime,callEndTime);
+		String insertQuery = ChatUtils.getIVRCDRQuery(env.getProperty("SQL43_INSERT_IVR_CDR"),aparty,bparty,reason,duration,lastNode,callStartTime,callEndTime);
 		
-		logger.info("final SQL Query="+insertQuery);
+		logger.trace("final SQL Query="+insertQuery);
 		
 		try {
 				int insertQueryResult= jdbcTemplate.update(insertQuery);
@@ -58,8 +58,8 @@ public class IVRCdrReportHandler {
 					logger.info("Successfully to insert|SQL43_INSERT_IVR_CDR|resultChangesRow="+insertQueryResult);
 				}
 		} catch (Exception e) {
-			System.out.println("SQL Exception" + e + "Query=" + insertQuery);
-			System.out.println("No Row Insert into  SQL43_INSERT_IVR_CDR");
+			logger.error("SQL Exception" + e + "Query=" + insertQuery);
+			logger.error("No Row Insert into  SQL43_INSERT_IVR_CDR");
 			e.printStackTrace();
 		}
 		

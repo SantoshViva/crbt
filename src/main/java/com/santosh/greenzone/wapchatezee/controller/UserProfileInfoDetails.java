@@ -43,8 +43,9 @@ public class UserProfileInfoDetails {
 		
 		logger.info("getUserProfileQuery|aparty="+aparty+"|bparty="+bparty+"|serviceId="+serviceId);
 		//System.out.println("getUserProfileInfoDetails|aparty=" + aparty+"|bparty="+bparty);
-		System.out.println("Query=" + env.getProperty("SQL25_USER_PROFILE_INFO"));
-		System.out.println("IVR_DEFAULT_LANG=" + env.getProperty("IVR_DEFAULT_LANG"));
+		//System.out.println("Query=" + env.getProperty("SQL25_USER_PROFILE_INFO"));
+		//System.out.println("IVR_DEFAULT_LANG=" + env.getProperty("IVR_DEFAULT_LANG"));
+		//System.out.println("serviceId="+env.getProperty("CORPORATE_SERVICE_ID"));
 				
 		// Replace Table Index & aparty 
 		String profileQuery = ChatUtils.getQuery(env.getProperty("SQL25_USER_PROFILE_INFO"), aparty);
@@ -109,7 +110,7 @@ public class UserProfileInfoDetails {
 			if(serviceId.compareToIgnoreCase("crbt") == 0)
 			{
 				String coreEngineProfileUrl= env.getProperty("CORE_ENGINE_PROFILE_URL");
-				logger.info("coreEngineProfileUrl"+coreEngineProfileUrl);
+				logger.info("coreEngineProfileUrl="+coreEngineProfileUrl);
 				String jsonBodyCrbtData = "{\r\n" +
 						" \"msisdn\": \"" +aparty +"\",\r\n" +
 						" \"action\" :\"ProfileQuery\"\r\n"+

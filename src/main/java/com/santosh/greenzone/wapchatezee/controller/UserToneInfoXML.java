@@ -41,33 +41,68 @@ public class UserToneInfoXML {
 	public String getToneIdInforXML(@RequestParam("aparty") String aparty, @RequestParam("bparty") String bparty, HttpServletRequest req,
 			HttpServletResponse res) {
 		
-		logger.info("UserToneInfo|aparty=" + aparty+"|bparty="+bparty);
-		logger.info("Query=" + env.getProperty("SQL23_USER_TONE_INFO"));
-		logger.info("Operator=" + env.getProperty("OPERATOR_NAME"));
-		logger.info("Default_Tone_Id=" + env.getProperty("NOT_CRBT_DEFAULT_TONE_ID"));
+		logger.info("getToneIdInforXML|aparty=" + aparty+"|bparty="+bparty);
+		//logger.info("Query=" + env.getProperty("SQL23_USER_TONE_INFO"));
+		//logger.info("Operator=" + env.getProperty("OPERATOR_NAME"));
+		
+		if(bparty.length()>9)
+		{
+			bparty= bparty.substring(bparty.length()-9);
+			logger.info("getToneIdInforXML|aparty="+aparty+"|modify bparty="+bparty);
+		}
+		logger.trace("Tone Id for No Record Found|Default_Tone_Id=" + env.getProperty("NOT_CRBT_DEFAULT_TONE_ID"));
 		
 		
 		// Replace Table Index & bparty 
 		String query = ChatUtils.getQuery(env.getProperty("SQL23_USER_TONE_INFO"), bparty);
 		
-		logger.info("final SQL Query="+query);
+		logger.trace("final SQL Query="+query);
 		ToneInfo toneInfoDetails = new ToneInfo();
+		toneInfoDetails.setToneId(env.getProperty("NOT_CRBT_DEFAULT_TONE_ID"));
+		toneInfoDetails.setCallingParty("D");
+		toneInfoDetails.setContentType("N");
+		toneInfoDetails.setSongName("No_DB");
+		toneInfoDetails.setSongPath("songPath");
+		toneInfoDetails.setServiceId("default");
 		try {
 			List<Map<String, Object>> queryForList = jdbcTemplate.queryForList(query);
 			
 			if(queryForList.isEmpty())
 			{
-				logger.info("No Record Found in SQL|aparty="+aparty+"|defaultTone="+env.getProperty("NOT_CRBT_DEFAULT_TONE_ID"));
-				toneInfoDetails.setStatus("D");	
-				toneInfoDetails.setToneId(env.getProperty("NOT_CRBT_DEFAULT_TONE_ID"));
-				toneInfoDetails.setCallingParty("D");
+				logger.error("No Record Found in SQL|aparty="+aparty+"|defaultTone="+env.getProperty("NOT_CRBT_DEFAULT_TONE_ID"));
+				toneInfoDetails.setStatus("N");	
+				
 			}else 
 			{
 				for (Map<String, Object> row : queryForList) {
+					
 					toneInfoDetails.setStatus(row.get("status").toString());
 					toneInfoDetails.setCallingParty(row.get("calling_party").toString());
 					toneInfoDetails.setToneId(row.get("tone_id").toString());
-					logger.info("QueryResult|msisdn="+bparty+"|status="+row.get("status").toString()+"|calling_party="+row.get("calling_party").toString()+"|tone_id="+row.get("tone_id").toString()+"|");
+					if((row.get("song_name") != null))
+					{
+						toneInfoDetails.setSongName(row.get("song_name").toString());
+					}
+					if(row.get("song_path")!= null)
+					{
+						toneInfoDetails.setSongPath(row.get("song_path").toString());
+					}
+					if(row.get("service_id")!=null)
+					{
+						toneInfoDetails.setServiceId(row.get("service_id").toString());
+					}
+					
+					if(toneInfoDetails.getToneId().length()<10)
+					{
+						logger.trace("This is old 6d data migration|aparty="+aparty);
+						toneInfoDetails.setContentType("O");
+						
+					}else
+					{
+						toneInfoDetails.setContentType("N");
+					}
+					
+					logger.trace("QueryResult|msisdn="+bparty+"|status="+row.get("status").toString()+"|calling_party="+row.get("calling_party").toString()+"|tone_id="+row.get("tone_id").toString()+"|");
 					if(toneInfoDetails.getStatus().equals("Y") && toneInfoDetails.getCallingParty().equals(aparty))
 					{
 						logger.info("Calling Party Matched");
@@ -76,16 +111,14 @@ public class UserToneInfoXML {
 				}
 			}
 		} catch (Exception e) {
-			logger.info("SQL Exception" + e +"Query="+query);
-			logger.info("No Row Found");
+			logger.error("SQL Exception" + e +"|Query="+query);
+			logger.error("No Row Found");
 			toneInfoDetails.setStatus("D");	
-			toneInfoDetails.setToneId(env.getProperty("DEFAULT_TONE_ID"));
+			toneInfoDetails.setToneId(env.getProperty("NOT_CRBT_DEFAULT_TONE_ID"));
 			e.printStackTrace();
 		}
 		
-				
-		ToneInfo toneInfo = new ToneInfo();
-		toneInfo.setStatus("Y");
+		
 //		toneInfo.setSubscriberId("4444444444");
 //		toneInfo.setToneId("1234567890");
 		
@@ -94,10 +127,13 @@ public class UserToneInfoXML {
 		responseString = responseString.concat("RBT_RES.toneId=\'"+toneInfoDetails.getToneId()+"\';");
 		responseString = responseString.concat("RBT_RES.setStatus=\'"+toneInfoDetails.getStatus()+"\';");
 		responseString = responseString.concat("RBT_RES.callingParty=\'"+toneInfoDetails.getCallingParty()+"\';");
+		responseString = responseString.concat("RBT_RES.status=\'"+toneInfoDetails.getStatus()+"\';");
+		responseString = responseString.concat("RBT_RES.songName=\'"+toneInfoDetails.getSongName()+"\';");
+		responseString = responseString.concat("RBT_RES.songPath=\'"+toneInfoDetails.getSongPath()+"\';");
+		responseString = responseString.concat("RBT_RES.contentType=\'"+toneInfoDetails.getContentType()+"\';");
 		Date date = new Date();
 		SimpleDateFormat DateFor = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-		logger.info("CDR Report|"+DateFor.format(date)+"|aparty="+aparty+"|bparty="+bparty+"|status="+toneInfoDetails.getStatus()+"|toneId="+toneInfoDetails.getToneId()+"|");
-		logger.info("responseString="+responseString);
+		logger.info("TP_RES|date="+DateFor.format(date)+"|aparty="+aparty+"|bparty="+bparty+"|responseString="+responseString);
 		return responseString;
 		
 	}

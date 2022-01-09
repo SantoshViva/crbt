@@ -39,10 +39,10 @@ public class SubscriptionBillingController {
 	JdbcTemplate jdbcTemplate;
 	@RequestMapping(value = "/subscriptionBillingReq",method = RequestMethod.GET)
 	@ResponseBody
-	public String getToneIdInforXML(@RequestParam("serviceId") String serviceId,@RequestParam("subServiceId") String subServiceId,@RequestParam("offer") String offer,@RequestParam("aparty") String aparty, @RequestParam("bparty") String bparty,@RequestParam("station") String station, HttpServletRequest req,
+	public String getToneIdInforXML(@RequestParam("serviceId") String serviceId,@RequestParam("productId") String productId,@RequestParam("offer") String offer,@RequestParam("aparty") String aparty, @RequestParam("bparty") String bparty,@RequestParam("station") String station, HttpServletRequest req,
 			HttpServletResponse res) {
 		
-			logger.info("subscriptionBillingReq|aparty="+aparty+"|bparty="+bparty+"|offer="+offer+"|station="+station+"|serviceId="+serviceId+"|subServiceId="+subServiceId);
+			logger.info("subscriptionBillingReq|aparty="+aparty+"|bparty="+bparty+"|offer="+offer+"|station="+station+"|serviceId="+serviceId+"|productId="+productId);
 			
 			
 			/**In Case of CRBT**/
@@ -61,13 +61,13 @@ public class SubscriptionBillingController {
 			String thirdPartySubBillingUrl = env.getProperty("THIRD_PARTY_SUBS_BILL_URL");
 			logger.trace("subscriptionBillingReq|thirdPartySubBillingUrl"+thirdPartySubBillingUrl);
 			String coreEngineSubBillingUrl = env.getProperty("CORE_ENGINE_SUBS_BILL_URL");
-			logger.info("subscriptionBillingReq|coreEngineSubBillingUrl"+coreEngineSubBillingUrl);
+			logger.trace("subscriptionBillingReq|coreEngine SubBillingUrl="+coreEngineSubBillingUrl);
 			
 			String jsonBodyData = "{\r\n" +
 	                "  \"msisdn\": \"" +aparty +"\",\r\n" +
 	                "  \"offer\": \"" +offer +"\"\r\n" +
 	                "}";
-			logger.info("jsonBodyData="+jsonBodyData);
+			logger.trace("jsonBodyData="+jsonBodyData);
 			String songName="Default Tone";
 			String postClientRes ="";
 			if(serviceId.compareToIgnoreCase("crbt") == 0)
@@ -86,7 +86,7 @@ public class SubscriptionBillingController {
 						" \"tid\": \"" +transactionId+ "\",\r\n"+
 		                " \"action\" :\"SUBSCRIPTION\",\r\n"+
 		                " \"serviceid\" :\"SUBS_RENTAL\",\r\n"+
-		                " \"productid\" :\"CRBT_Weekly\",\r\n"+
+		                " \"productid\" :\""+productId+"\",\r\n"+
 		                " \"langid\" :\"en\",\r\n"+
 		                " \"interfacename\" :\"IVR\",\r\n"+
 		                " \"timestamp\" :\"" +strDate+ "\",\r\n"+
@@ -94,7 +94,7 @@ public class SubscriptionBillingController {
 		                " \"toneid\" :\"" +env.getProperty("DEFAULT_TONE_ID")+"\",\r\n"+
 		                " \"tonetype\" :\"0\",\r\n"+
 		                " \"tonetypeidx\" :\"1\",\r\n"+
-		                " \"tonename\" :\"mysong\",\r\n"+
+		                " \"tonename\" :\"" +env.getProperty("DEFAULT_TONE_NAME")+"\",\r\n"+
 		                " \"precrbtflag\" :\"\",\r\n"+
 		                " \"callingpartynumber\" :\"D\",\r\n"+
 		                " \"toneserviceid\" :\"TONE_RENTAL\",\r\n"+
@@ -102,8 +102,8 @@ public class SubscriptionBillingController {
 		                " \"istonecharge\" :\"N\"\r\n"+
 		                "}";
 				
-				logger.info("jsonBodyData="+jsonCrbtBodyData);
-				logger.info("CRBT Case: We are not hitting third party URL");
+				logger.info("jsonCrbtBodyData="+jsonCrbtBodyData);
+				logger.trace("CRBT Case: We are not hitting third party URL");
 				PostClientCrbtServiceImpl postClientCrbtService = new PostClientCrbtServiceImpl();
 				postClientRes = postClientCrbtService.sendPostClientCrbtReq(coreEngineSubBillingUrl, jsonCrbtBodyData, "subscribe");
 			}
@@ -136,6 +136,7 @@ public class SubscriptionBillingController {
 			}
 			
 			/**insert default song ***/
+			/*
 			if(serviceId.compareToIgnoreCase("crbt") == 0 && !(postClientRes.equalsIgnoreCase("A") || postClientRes.equalsIgnoreCase("F")))
 			{
 				String toneType="0";
@@ -158,7 +159,8 @@ public class SubscriptionBillingController {
 					logger.error("Exception occurred|Query="+insertToneInfoQuery+"|SQL exception="+e);
 					e.printStackTrace();
 				}
-			}	
+			}
+			*/	
 			/****/
 			String responseString = new String();
 			String dbError ="N";

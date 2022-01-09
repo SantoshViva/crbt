@@ -72,7 +72,7 @@ public class UnSubscriptionController {
 						" \"tid\": \""+transactionId+"\",\r\n"+
 		                " \"action\" :\"UNSUBSCRIPTION\",\r\n"+
 		                " \"serviceid\" :\"SUBS_RENTAL\",\r\n"+
-		                " \"productid\" :\"CRBT_Weekly\",\r\n"+
+		                " \"productid\" :\""+subServiceId+"\",\r\n"+
 		                " \"langid\" :\"en\",\r\n"+
 		                " \"interfacename\" :\"IVR\",\r\n"+
 		                " \"timestamp\" :\""+strDate+"\"\r\n"+
@@ -93,7 +93,7 @@ public class UnSubscriptionController {
 			/**Update in local database for subscriber status*/
 			String subStatus="N";
 			String updateSubProfile=ChatUtils.updateSubProfileQuery(env.getProperty("SQL30_UPDATE_UNSUB_PROFILE"),aparty,bparty,subStatus,offer);
-			logger.info("updateSubProfile="+updateSubProfile);
+			logger.trace("updateSubProfile="+updateSubProfile);
 			try
 			{
 				int updateSubProfileResult=jdbcTemplate.update(updateSubProfile);
@@ -107,6 +107,7 @@ public class UnSubscriptionController {
 				logger.error("Exception occurred="+e);
 			}
 			/**For CRBT service : Delete tone all information*/
+			/*
 			if(serviceId.compareToIgnoreCase("crbt") == 0)
 			{
 				String deleteToneInfo=ChatUtils.updateSubProfileQuery(env.getProperty("SQL33_DELETE_ALL_TONE_INFO"),aparty,bparty,"","");
@@ -124,7 +125,7 @@ public class UnSubscriptionController {
 					logger.error("Exception occurred="+e);
 				}
 			}
-			
+			*/
 			/**Remove all tone information*/
 			/**End database updatation*/
 			
@@ -134,7 +135,7 @@ public class UnSubscriptionController {
 			responseString = responseString.concat("RESPONSE.result=\'"+postClientRes+"\';");
 			
 			logger.info("responseString="+responseString);
-			return "";
+			return responseString;
 		
 	}
 	

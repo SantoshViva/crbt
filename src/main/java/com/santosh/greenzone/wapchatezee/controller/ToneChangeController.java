@@ -55,10 +55,10 @@ public class ToneChangeController {
 			/* System.out.print("Date="+strDate); */
 			
 			/**Start Find the songName **/
-			logger.info("toneId="+toneId);
+			logger.trace("toneId="+toneId);
 			String selectQuery = ChatUtils.getQuery(env.getProperty("SQL35_SELECT_SONG_NAME_DETAIL"), toneId);
 			String songName="";
-			logger.info("final Query="+selectQuery);
+			logger.trace("final Query="+selectQuery);
 			try {
 				List<Map<String, Object>> queryForList = jdbcTemplate.queryForList(selectQuery);
 				if(queryForList.isEmpty())
@@ -83,7 +83,7 @@ public class ToneChangeController {
 			
 			
 			
-			System.out.print("unique Id="+transactionId);
+			//System.out.print("unique Id="+transactionId);
 			/**HTTP URL Hit for Third Party**/
 			
 			String jsonCrbtBodyData = "{\r\n" +
@@ -107,20 +107,20 @@ public class ToneChangeController {
 	                "}";
 			logger.info("jsonCrbtBodyData="+jsonCrbtBodyData);
 			String coreEngineToneChangeUrl = env.getProperty("CORE_ENGINE_TONE_CHANGE_URL");
-			logger.info("toneChangeReq|coreEngineToneChangeUrl"+coreEngineToneChangeUrl);
+			logger.trace("toneChangeReq|coreEngineToneChangeUrl"+coreEngineToneChangeUrl);
 			PostClientCrbtServiceImpl postClientCrbtService = new PostClientCrbtServiceImpl();
 			String postClientRes = postClientCrbtService.sendPostClientCrbtReq(coreEngineToneChangeUrl, jsonCrbtBodyData, "tone");
-			logger.info("postClientRes="+postClientRes);
+			logger.info("aparty="+aparty+"|postClientRes="+postClientRes);
 			/**End CoreEngine URL Hit*/
-			String query="";
+			String songPath="songPath";
 			if(action.compareToIgnoreCase("insert") == 0)
 			{
-				logger.info("insert new tone");
+				logger.trace("insert new tone");
 			}else {
-				logger.info("update existing toneId");
+				logger.trace("update existing toneId");
 				String status="A";
-				String updateToneInfoQuery=ChatUtils.insertToneInfoQuery(env.getProperty("SQL32_UPDATE_TONE_PRO_INFO"),aparty,toneType,toneTypeIdx,callingParty,toneId,status,songName);
-				logger.info("Query="+updateToneInfoQuery);
+				String updateToneInfoQuery=ChatUtils.insertToneInfoQuery(env.getProperty("SQL32_UPDATE_TONE_PRO_INFO"),aparty,toneType,toneTypeIdx,callingParty,toneId,status,songName,toneServiceId,songPath);
+				logger.trace("Query="+updateToneInfoQuery);
 				try
 				{
 					int updateResult=jdbcTemplate.update(updateToneInfoQuery);
@@ -134,9 +134,10 @@ public class ToneChangeController {
 					logger.error("Exception occurred="+e);
 				}
 			}
-			
-			
-			return "ok";
+			String responseString = new String();
+			String responseResult="OK";
+			responseString = responseString.concat("RESPONSE.result=\'"+responseResult+"\';");
+			return responseString;
 		
 	}
 	

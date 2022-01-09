@@ -20,7 +20,8 @@ public class ChatUtils {
 		finalQuery = finalQuery.replace("{userId}", msisdn);
 		finalQuery = finalQuery.replace("{vMsisdn}", msisdn);
 		finalQuery = finalQuery.replace("{voiceMessageId}", msisdn);
-		System.out.println("Final Query="+finalQuery);
+		finalQuery = finalQuery.replace("{toneId}", msisdn);
+		//System.out.println("Final Query="+finalQuery);
 		return finalQuery;
 	}
 	public static String getVoiceSmsQuery(String query, String vMsisdn,String zvMsisdn) {
@@ -65,7 +66,25 @@ public class ChatUtils {
 		finalQuery = finalQuery.replace("{star_to_copy}",starToCopy );
 		return finalQuery;
 	}
-	public static String getTonePlayerCDRQuery(String query, String aparty, String bparty,String playStatus,String toneType, String toneId, String playStartTime,
+	public static String getTonePlayerCDRQuery(String query, String aparty, String bparty,String playStatus,String toneType,String status, String songName, String duration, String toneId, String playStartTime,
+			String playEndTime) {
+		String finalQuery = query.replace("{aparty}", aparty);
+		finalQuery = finalQuery.replace("{bparty}", bparty);
+		finalQuery = finalQuery.replace("{playStatus}", playStatus);
+		finalQuery = finalQuery.replace("{reason}", playStatus);
+		finalQuery = finalQuery.replace("{toneType}", toneType);
+		finalQuery = finalQuery.replace("{status}", status);
+		finalQuery = finalQuery.replace("{songName}", songName);
+		finalQuery = finalQuery.replace("{duration}", duration);
+		finalQuery = finalQuery.replace("{toneId}", toneId);
+		finalQuery = finalQuery.replace("{lastNode}", toneId);
+		finalQuery = finalQuery.replace("{playStartTime}", playStartTime);
+		finalQuery = finalQuery.replace("{callStartTime}", playStartTime);
+		finalQuery = finalQuery.replace("{playEndTime}",playEndTime );
+		finalQuery = finalQuery.replace("{callEndTime}",playEndTime );
+		return finalQuery;
+	}
+	public static String getIVRCDRQuery(String query, String aparty, String bparty,String playStatus,String toneType, String toneId, String playStartTime,
 			String playEndTime) {
 		String finalQuery = query.replace("{aparty}", aparty);
 		finalQuery = finalQuery.replace("{bparty}", bparty);
@@ -104,7 +123,7 @@ public class ChatUtils {
 		return finalQuery;
 		
 	}
-	public static String insertToneInfoQuery(String query, String aparty, String toneType, String toneTypeIdx,String callingParty, String toneId,String status,String songName)
+	public static String insertToneInfoQuery(String query, String aparty, String toneType, String toneTypeIdx,String callingParty, String toneId,String status,String songName,String serviceId,String songPath)
 	{
 		String finalQuery = query.replace("{aparty}", aparty);
 		finalQuery = finalQuery.replace("{toneType}", toneType);
@@ -112,6 +131,19 @@ public class ChatUtils {
 		finalQuery = finalQuery.replace("{callingParty}", callingParty);
 		finalQuery = finalQuery.replace("{toneId}", toneId);
 		finalQuery = finalQuery.replace("{status}", status);
+		finalQuery = finalQuery.replace("{songName}", songName);
+		finalQuery = finalQuery.replace("{serviceId}", serviceId);
+		finalQuery = finalQuery.replace("{songPath}", songPath);
+		return finalQuery;
+	}
+	public static String deleteToneInfoQuery(String query, String aparty, String toneType, String toneTypeIdx,String callingParty, String toneId,String songName)
+	{
+		String finalQuery = query.replace("{aparty}", aparty);
+		finalQuery = finalQuery.replace("{toneType}", toneType);
+		finalQuery = finalQuery.replace("{toneTypeIdx}", toneTypeIdx);
+		finalQuery = finalQuery.replace("{callingParty}", callingParty);
+		finalQuery = finalQuery.replace("{toneId}", toneId);
+		
 		finalQuery = finalQuery.replace("{songName}", songName);
 		return finalQuery;
 	}

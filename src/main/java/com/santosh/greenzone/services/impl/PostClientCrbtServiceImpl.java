@@ -84,11 +84,13 @@ public class PostClientCrbtServiceImpl implements PostClientCrbtService{
 				logger.info("response status code from3="+response.getStatusCode());
 				logger.info("response body from4="+response.getBody());
 				String resBodyData = response.getBody().toString();
-				logger.trace("response from5="+resBodyData);
+				//logger.info("response from5="+resBodyData);
+				
 				JSONObject json = new JSONObject(resBodyData);
-				logger.info("response json="+json.toString());
+				//logger.info("response json="+json.toString());
+				
 				String result=json.getString("result");
-				logger.info("result="+result);
+				//logger.info("result="+result);
 				if(reqType.equalsIgnoreCase("balance-query")==true)
 				{
 					String sufficientBalance="N";
@@ -130,7 +132,7 @@ public class PostClientCrbtServiceImpl implements PostClientCrbtService{
 				}
 				int errorCode=-1;
 				//errorCode=json.getInt("errorCode");
-				logger.error("Response="+result+"|reqTpe="+reqType+"|errorCode="+json.getString("errorCode")+"|errorMsg="+json.getString("errorMsg"));
+				logger.info("result="+result+"|reqTpe="+reqType+"|errorCode="+json.getString("errorCode")+"|errorMsg="+json.getString("errorMsg"));
 				if(result.equalsIgnoreCase("ok")|| result.equalsIgnoreCase("SUCCESS")) 
 				{
 					switch(reqType)
@@ -146,27 +148,61 @@ public class PostClientCrbtServiceImpl implements PostClientCrbtService{
 							}
 							break;
 						case "check-subscription":
-																			
-							if(json.getString("errorCode").equalsIgnoreCase("0"))
+							String subServiceId="";
+							//String configCorporateServieId=env.getProperty("CORPORATE_SERVICE_ID");
+							//logger.info("|config subServiceId="+configCorporateServieId);
+							try {
+								JSONObject userInfoJsonObject = json.getJSONObject("userinfo");
+								//logger.info("userinfo Object **********="+userInfoJsonObject);
+								JSONObject userinfoidentityJsonObject = userInfoJsonObject.getJSONObject("userinfoidentity");
+								//logger.info("userinfoidentity Object **********="+userinfoidentityJsonObject);
+								subServiceId=userinfoidentityJsonObject.getString("serviceid");
+								logger.info("subServiceid="+subServiceId+"|status="+userInfoJsonObject.getString("status"));
+								/*
+								for(int i=0;i<jsonArray.length();i++)
+								{
+									String accountId= jsonArray.getJSONObject(i).getString("userinfoidentity");
+									int serviceid = jsonArray.getJSONObject(i).getInt("serviceid");
+									
+									logger.info("count1="+i+"|serviceid="+serviceid);
+									
+								}*/
+								//logger.info("userinfo="+jsonArray);
+							}catch(Exception e)
 							{
-								returnValue = "Y";
+								logger.info("Exception ="+e);
+							}
+							logger.info("subServiceid="+subServiceId);
+							//logger.info("|config subServiceId="+env.getProperty("CORPORATE_SERVICE_ID"));
+							//subServiceId.compareToIgnoreCase(env.getProperty("CORPORATE_SERVICE_ID")) == 0
+							if((subServiceId.indexOf("CORPORATE")!=-1)) 
+							{
+								returnValue= "C";
+							}
+							else 
+							{
+								if(json.getString("errorCode").equalsIgnoreCase("0"))
+								{
+									returnValue = "Y";
 								
-							}else {
+								}else {
 								
 								returnValue = "N";
-							}
+								}
+							}	
 							logger.info("response result|returnValue="+returnValue);
 							break;
 						case "unsubscribe":
 							//errorCode=json.getInt("errorCode");
 							logger.info("unsubscribe response|result="+result);
-							if(result == "ok")
+							if(result.equalsIgnoreCase("ok")|| result.equalsIgnoreCase("SUCCESS"))
 							{
 								returnValue="Y";
 							}
 							break;
 						case "tone":
 							logger.info("Tone Changes");
+							returnValue=result;
 							break;
 						default:
 							logger.error("default case");
@@ -260,7 +296,7 @@ public class PostClientCrbtServiceImpl implements PostClientCrbtService{
 			logger.error("Reosource Access Exception="+ ex.getCause());
 			returnValue="E";
 		}catch(Exception ex) {
-			System.out.println("Exception="+ ex.getMessage());
+			System.out.println("Exception****="+ ex);
 		}
 		logger.info("response result|returnValue="+returnValue);
 		return returnValue;	

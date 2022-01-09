@@ -45,12 +45,14 @@ public class CrbtCatSubCatDetails {
 	JdbcTemplate jdbcTemplate;
 	@RequestMapping(value = "/crbtCatSubCatDetails",method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<?> crbtCatSubCatInfo(@RequestParam("categoryId") String categoryId,@RequestParam("subCategoryId") String subCategoryId,@RequestParam("contentCount") String contentCount,HttpServletRequest req,
+	public String crbtCatSubCatInfo(@RequestParam("aparty") String aparty,@RequestParam("bparty") String bparty,@RequestParam("categoryId") String categoryId,@RequestParam("subCategoryId") String subCategoryId,@RequestParam("contentCount") String contentCount,HttpServletRequest req,
 			HttpServletResponse res) {
 		
 		    
-			logger.info("crbtCatSubCatInfo|categoryId="+categoryId+"|subCategoryId="+subCategoryId+"|contentCount="+contentCount);
-		    
+			logger.info("crbtCatSubCatInfo|aparty="+aparty+"|bparty="+bparty+"|categoryId="+categoryId+"|subCategoryId="+subCategoryId+"|contentCount="+contentCount);
+			String responseString = new String();
+			int counter=0;
+			String dbError ="N";
 			if(contentCount==null)
 			{
 				contentCount="10";
@@ -64,25 +66,44 @@ public class CrbtCatSubCatDetails {
 				if(queryForList.isEmpty())
 				{
 						/**No record found. Error handling here*/
+					responseString = responseString.concat("CRBT_CAT_SUBCAT_RES.songCount=\'"+"0"+"\';");
 				}
 				else 
 				{
 					for (Map<String, Object> row : queryForList) {
-						MyCategorySubCategory  content = new MyCategorySubCategory();
-						content.setSongId(row.get("songid").toString());
-						content.setSongName(row.get("songname").toString());
-					    contents.add(content);
-					}
+						Integer intCounterLocal = new Integer(counter);
+						
+					    if(row.get("songid")==null||row.get("songname")== null||row.get("songid").toString().isEmpty()||row.get("songname").toString().isEmpty())
+						{
+							logger.error("Category & sub category songs are null in database|aparty="+aparty);
+							continue;
+						}else
+						{	
+							String songPath=row.get("songid").toString();
+							songPath=songPath.substring(0,2)+"/"+songPath.substring(2,4)+"/"+songPath.substring(4,7)+"/"+songPath+"/"+songPath+"_audio.wav";
+							logger.info("songid="+row.get("songid")+"|songname="+row.get("songname")+"|songpath="+songPath);
+							responseString = responseString.concat("CRBT_CAT_SUBCAT_RES.songId["+intCounterLocal.toString()+"]"+"=\'"+row.get("songid")+"\';");
+							responseString = responseString.concat("CRBT_CAT_SUBCAT_RES.songName["+intCounterLocal.toString()+"]"+"=\'"+row.get("songname")+"\';");
+							responseString = responseString.concat("CRBT_CAT_SUBCAT_RES.songPath["+intCounterLocal.toString()+"]"+"=\'"+songPath+"\';");
+							
+						}
+					    counter++;
+					   }
+						Integer intCounter = new Integer(counter);
+						responseString = responseString.concat("CRBT_CAT_SUBCAT_RES.songCount=\'"+intCounter.toString()+"\';");
 				}
 				
 			}catch(Exception e) {
+				
+				logger.error("SQL Exception" + e +"Query="+selectQuery);
+				logger.error("No Row Found");
+				responseString = responseString.concat("CRBT_CAT_SUBCAT_RES.songCount=\'"+"0"+"\';");
+				dbError="Y";
 				e.printStackTrace();
 			}
 			
-			ResponseDTO<List<MyCategorySubCategory>> response = new ResponseDTO<>();
-			response.setBody(contents);
-			
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			responseString = responseString.concat("CRBT_CAT_SUBCAT_RES.dbError=\'"+dbError+"\';");
+			return responseString;
 		
 	}
 	

@@ -72,7 +72,7 @@ public class CatSubCategorySongsDetails {
 						
 					}else
 					{
-						responseString = responseString.concat("CAT_SUB_CAT_RES.toneId_"+toneCount+"=\'"+row.get("tone_id")+"\';");
+						responseString = responseString.concat("CAT_SUB_CAT_RES.toneId["+toneCount+"]=\'"+row.get("tone_id")+"\';");
 						
 					}
 					

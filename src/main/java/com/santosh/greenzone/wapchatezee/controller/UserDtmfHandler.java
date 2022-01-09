@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,7 +26,7 @@ import com.santosh.greenzone.utils.ChatUtils;
 @CrossOrigin
 @RestController
 public class UserDtmfHandler {
-	
+	private static final Logger logger = LogManager.getLogger(UserDtmfHandler.class);
 	@Autowired
 	Environment env;
 	
@@ -36,10 +38,10 @@ public class UserDtmfHandler {
 			@RequestParam("callStartTime") String callStartTime,@RequestParam("callEndTime") String callEndTime,@RequestParam("digits") String digits,HttpServletRequest req,
 			HttpServletResponse res) {
 		
-		System.out.println("userDtmfHandler|aparty=" + aparty+"|bparty="+bparty+"|toneId="+toneId+"|callStartTime="+callStartTime+"|callEndTime="+callEndTime+"|digits="+digits+"|");
-		System.out.println("Query=" + env.getProperty("SQL23_USER_TONE_INFO"));
-		System.out.println("Öperator=" + env.getProperty("OPERATOR_NAME"));
-		System.out.println("Default_Tone_Id=" + env.getProperty("DEFAULT_TONE_ID"));
+		logger.info("userDtmfHandler|aparty=" + aparty+"|bparty="+bparty+"|toneId="+toneId+"|callStartTime="+callStartTime+"|callEndTime="+callEndTime+"|digits="+digits+"|");
+		logger.trace("Query=" + env.getProperty("SQL23_USER_TONE_INFO"));
+		logger.trace("Öperator=" + env.getProperty("OPERATOR_NAME"));
+		logger.trace("Default_Tone_Id=" + env.getProperty("DEFAULT_TONE_ID"));
 		String starToCopy="N";
 		if(digits.contains("*")) {
 			System.out.println("userDtmfHandler|Star is present in digits");
@@ -49,20 +51,20 @@ public class UserDtmfHandler {
 		// Replace Table Index & bparty 
 		String insertQuery = ChatUtils.getTonePlayerDtmfInsertQuery(env.getProperty("SQL24_TONE_PLAYER_DTMF"), aparty,bparty,toneId,digits,callStartTime,callEndTime,starToCopy);
 		
-		System.out.println("final SQL Query="+insertQuery);
+		//System.out.println("final SQL Query="+insertQuery);
 				
 		try {
 			int insertQueryResult= jdbcTemplate.update(insertQuery);
 			if(insertQueryResult <= 0)
 			{
-				System.out.println("Failed to insert into accout table");
+				logger.error("Failed to insert into accout table");
 			}else {
-				System.out.println("Successfully to insert into CRBT_SUBS_TONE_DTMF_INFO |resultChangesRow="+insertQueryResult);
+				logger.info("Successfully to insert into CRBT_SUBS_TONE_DTMF_INFO |resultChangesRow="+insertQueryResult);
 			}
 			
 		} catch (Exception e) {
-			System.out.println("SQL Exception" + e + "Query=" + insertQuery);
-			System.out.println("No Row Insert into  CRBT_SUBS_TONE_DTMF_INFO");
+			logger.error("SQL Exception" + e + "Query=" + insertQuery);
+			logger.error("No Row Insert into  CRBT_SUBS_TONE_DTMF_INFO");
 			e.printStackTrace();
 		}
 			
