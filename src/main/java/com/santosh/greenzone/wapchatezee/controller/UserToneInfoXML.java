@@ -131,6 +131,7 @@ public class UserToneInfoXML {
 		responseString = responseString.concat("RBT_RES.songName=\'"+toneInfoDetails.getSongName()+"\';");
 		responseString = responseString.concat("RBT_RES.songPath=\'"+toneInfoDetails.getSongPath()+"\';");
 		responseString = responseString.concat("RBT_RES.contentType=\'"+toneInfoDetails.getContentType()+"\';");
+		responseString = responseString.concat("RBT_RES.serviceId=\'"+toneInfoDetails.getServiceId()+"\';");
 		Date date = new Date();
 		SimpleDateFormat DateFor = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
 		logger.info("TP_RES|date="+DateFor.format(date)+"|aparty="+aparty+"|bparty="+bparty+"|responseString="+responseString);
